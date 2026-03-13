@@ -1,13 +1,13 @@
 #pragma once
+#include "ClassMacros.h"
 #include "Object/Object.h"
 
 class AActor;
 
 class ENGINE_API UScene : public UObject
 {
+    DECLARE_NATIVE_CLASS(UScene, UObject)
 public:
-	static UClass* StaticClass();
-
 	UScene(UClass* InClass, const FString& InName, UObject* InOuter = nullptr);
 	~UScene() override = default;
 

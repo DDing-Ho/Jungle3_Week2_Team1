@@ -1,4 +1,5 @@
 #pragma once
+#include "ClassMacros.h"
 #include "Component/SceneComponent.h"
 #include "Object/Object.h"
 
@@ -8,9 +9,9 @@ class UScene;
 
 class ENGINE_API AActor : public UObject
 {
-public:
-	static UClass* StaticClass();
+	DECLARE_NATIVE_CLASS(AActor, UObject)
 
+public:
 	AActor(UClass* InClass, const FString& InName, UObject* InOuter = nullptr);
 	~AActor() override = default;
 

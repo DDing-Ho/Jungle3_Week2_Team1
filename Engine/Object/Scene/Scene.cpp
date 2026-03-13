@@ -4,19 +4,7 @@
 #include "Object/Class.h"
 #include "Object/Actor/Actor.h"
 
-namespace
-{
-    UObject* CreateUWorldInstance(UObject* InOuter, const FString& InName)
-    {
-        return new UScene(UScene::StaticClass(), InName, InOuter);
-    }
-}
-
-UClass* UScene::StaticClass()
-{
-    static UClass ClassInfo("UWorld", UObject::StaticClass(), &CreateUWorldInstance);
-    return &ClassInfo;
-}
+IMPLEMENT_NATIVE_CLASS(UScene, UObject)
 
 UScene::UScene(UClass* InClass, const FString& InName, UObject* InOuter)
     : UObject(InClass, InName, InOuter)

@@ -2,21 +2,7 @@
 
 #include "Object/Class.h"
 
-namespace
-{
-	UObject* CreateAActorInstance(UObject* InOuter, const FString& InName)
-	{
-		return new AActor(AActor::StaticClass(), InName, InOuter);
-	}
-
-	FVector GZeroVector{};
-}
-
-UClass* AActor::StaticClass()
-{
-	static UClass ClassInfo("AActor", UObject::StaticClass(), &CreateAActorInstance);
-	return &ClassInfo;
-}
+IMPLEMENT_NATIVE_CLASS(AActor, UObject)
 
 AActor::AActor(UClass* InClass, const FString& InName, UObject* InOuter)
 	: UObject(InClass, InName, InOuter)
@@ -30,7 +16,7 @@ void AActor::AddOwnedComponent(UActorComponent* InComponent)
 		return;
 	}
 
-	auto It = std::find(OwnedComponents.begin(), OwnedComponents.end(), InComponent);
+	auto It = std::ranges::find(OwnedComponents, InComponent);
 	if (It != OwnedComponents.end())
 	{
 		return;
@@ -93,7 +79,7 @@ void AActor::BeginPlay()
 
 void AActor::Tick(float DeltaTime)
 {
-	if (!CanTick || bPendingDestroy)
+	if (!CanTick() || bPendingDestroy)
 	{
 		return;
 	}
@@ -126,7 +112,7 @@ const FVector& AActor::GetActorLocation() const
 {
 	if (RootComponent == nullptr)
 	{
-		return GZeroVector;
+		return FVector{0.f, 0.f, 0.f};
 	}
 
 	return RootComponent->GetRelativeLocation();
