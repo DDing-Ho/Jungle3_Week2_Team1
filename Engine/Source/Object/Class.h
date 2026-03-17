@@ -19,6 +19,7 @@ public:
 private:
 	FString Name;
 	UClass* SuperClass = nullptr;
+
 	CreateFunc Factory = nullptr;
 };
 

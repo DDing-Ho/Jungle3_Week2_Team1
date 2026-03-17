@@ -13,41 +13,36 @@ ObjectManager::~ObjectManager()
 	{
 		delete Obj;
 	}
-	GUObjectArray.empty();
+	GUObjectArray.clear();
 }
 
-UObject* ObjectManager::SpawnObject(
-	UClass* InClass,
-	UObject* InOuter,
-	const FString& InName)
-{
-	return FObjectFactory::ConstructObject(InClass, InOuter, InName);
-}
 
-void ObjectManager::ReleaseObject(UObject* obj)
-{
-	if (!obj) return;
-
-	// PendingKill 마킹 후 즉시 삭제
-	// ~UObject()에서 GUObjectArray[InternalIndex] = nullptr 처리
-	obj->MarkPendingKill();
-	delete obj;
-}
 
 void ObjectManager::FlushKilledObjects()
 {
 	// nullptr 슬롯을 제거하고 살아있는 오브젝트의 InternalIndex 재조정
-	int32 WriteIdx = 0;
-	for (int32 ReadIdx = 0; ReadIdx < GUObjectArray.size(); ++ReadIdx)
+	uint32 WriteIdx = 0;
+	const uint32 Count = static_cast<uint32>(GUObjectArray.size());
+
+	for (uint32 ReadIdx = 0; ReadIdx < Count; ++ReadIdx)
 	{
-		UObject* Obj = GUObjectArray[ReadIdx];
+		auto& Obj = GUObjectArray[ReadIdx];
 		if (Obj != nullptr)
 		{
-			Obj->InternalIndex = static_cast<uint32>(WriteIdx);
-			GUObjectArray[WriteIdx] = Obj;
-			++WriteIdx;
+			if (Obj->IsPendingKill())
+			{
+				delete Obj;
+				Obj = nullptr;
+			}
+
+			else
+			{
+				Obj->InternalIndex = WriteIdx;
+				GUObjectArray[WriteIdx] = Obj;
+				++WriteIdx;
+			}
 		}
 	}
-	//GUObjectArray.erase(WriteIdx);
-	GUObjectArray[WriteIdx] = nullptr;
+
+	std::fill(GUObjectArray.begin() + WriteIdx, GUObjectArray.end(), nullptr);
 }

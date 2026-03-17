@@ -8,10 +8,7 @@
 //   2. UUID 부여
 //   3. InternalIndex = GUObjectArray 현재 크기
 //   4. GUObjectArray에 push
-UObject* FObjectFactory::ConstructObject(
-	UClass* InClass,
-	UObject* InOuter,
-	const FString& InName)
+UObject* FObjectFactory::ConstructObject(UClass* InClass,UObject* InOuter,const FString& InName)
 {
 	if (!InClass)
 	{
