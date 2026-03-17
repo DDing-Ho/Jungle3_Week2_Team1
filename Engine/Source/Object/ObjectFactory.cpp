@@ -24,7 +24,7 @@ UObject* FObjectFactory::ConstructObject(UClass* InClass,UObject* InOuter,const 
 	NewObj->UUID = GenerateUUID();
 	NewObj->InternalIndex = static_cast<uint32>(GUObjectArray.size());
 	GUObjectArray.push_back(NewObj);
-
+	NewObj->GetClass()->AddAllocation();
 	return NewObj;
 }
 

@@ -1,10 +1,9 @@
 #pragma once
 #include "CoreMinimal.h"
-#include <functional>
 
 class UClass;
 class UObject;
-class Profile;
+
 // 조건 3: UObject를 생성해주는 Factory 클래스
 // UClass에 등록된 팩토리 람다를 통해 인스턴스를 만들고,
 // UUID / InternalIndex를 부여한 뒤 GUObjectArray에 등록한다.
@@ -13,8 +12,6 @@ class Profile;
 //   UObject*   obj  = FObjectFactory::ConstructObject(UObject::StaticClass());
 //   UPrimitive* p   = FObjectFactory::ConstructObject(UPrimitive::StaticClass());
 //   USphere*    s   = FObjectFactory::ConstructObject<USphere>();
-
-
 class ENGINE_API FObjectFactory
 {
 public:
