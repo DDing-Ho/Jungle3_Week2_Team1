@@ -53,6 +53,7 @@ void ObjectManager::FlushKilledObjects()
 		UObject* Obj = GUObjectArray[Idx];
 		if (Obj && Obj->IsPendingKill())
 		{
+			Obj->GetClass()->SubstractAllocation( 1);
 			delete Obj;
 			++KilledCount;
 		}

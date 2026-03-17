@@ -13,7 +13,7 @@ namespace
 
 UClass* ASphereActor::StaticClass()
 {
-	static UClass ClassInfo("ASphereActor", AActor::StaticClass(), &CreateASphereActorInstance);
+	static UClass ClassInfo("ASphereActor", AActor::StaticClass(), &CreateASphereActorInstance, static_cast<uint32>(sizeof(ASphereActor)));
 	return &ClassInfo;
 }
 

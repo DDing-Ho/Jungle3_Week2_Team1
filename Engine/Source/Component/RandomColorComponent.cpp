@@ -1,4 +1,4 @@
-﻿#include "RandomColorComponent.h"
+#include "RandomColorComponent.h"
 #include "PrimitiveComponent.h"
 #include "Actor/Actor.h"
 #include "Renderer/Material.h"
@@ -21,7 +21,7 @@ namespace
 
 UClass* URandomColorComponent::StaticClass()
 {
-	static UClass ClassInfo("URandomColorComponent", UActorComponent::StaticClass(), &CreateURandomColorComponentInstance);
+	static UClass ClassInfo("URandomColorComponent", UActorComponent::StaticClass(), &CreateURandomColorComponentInstance , static_cast<uint32>(sizeof(URandomColorComponent)));
 	return &ClassInfo;
 }
 

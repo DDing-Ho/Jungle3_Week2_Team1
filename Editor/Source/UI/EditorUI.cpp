@@ -273,6 +273,7 @@ void CEditorUI::Render()
 						Selected->GetName().c_str()
 					);
 				}
+				Stat.setUClassMap(Selected->GetName(), Selected->GetClass());
 			}
 			else
 			{

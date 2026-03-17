@@ -4,13 +4,13 @@ namespace
 {
     UObject* CreateUSceneComponentInstance(UObject* InOuter, const FString& InName)
     {
-        return new USceneComponent(USceneComponent::StaticClass(), InName, InOuter);
+        return new USceneComponent(USceneComponent::StaticClass(), InName, InOuter );
     }
 }
 
 UClass* USceneComponent::StaticClass()
 {
-    static UClass ClassInfo("USceneComponent", UActorComponent::StaticClass(), &CreateUSceneComponentInstance);
+    static UClass ClassInfo("USceneComponent", UActorComponent::StaticClass(), &CreateUSceneComponentInstance, static_cast<uint32>(sizeof(USceneComponent)));
     return &ClassInfo;
 }
 

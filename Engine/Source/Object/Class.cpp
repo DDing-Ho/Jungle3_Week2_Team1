@@ -1,9 +1,11 @@
 #include "Class.h"
 
-UClass::UClass(FString InName, UClass* InSuperClass, CreateFunc InCreateFunc)
+UClass::UClass(FString InName, UClass* InSuperClass, CreateFunc InCreateFunc , uint32 InSIze)
 	: Name(std::move(InName)),
 	SuperClass(InSuperClass),
-	Factory(InCreateFunc)
+	Factory(InCreateFunc),
+	UObjectSize(InSIze),
+	ClassAllocationCounts(0)
 {
 }
 
@@ -32,4 +34,20 @@ bool UClass::IsChildOf(const UClass* Other) const
 UObject* UClass::CreateInstance(UObject* InOuter, const FString& InName) const
 {
     return Factory ? Factory(InOuter, InName) : nullptr;
+}
+
+void UClass::AddAllocation(uint32 InCount)
+{
+	ClassAllocationCounts += InCount;
+}
+
+void UClass::SubstractAllocation( uint32 InCount)
+{
+	ClassAllocationCounts -= InCount;
+
+}
+
+uint32 UClass::GetObjectSize()
+{
+	return UObjectSize;
 }

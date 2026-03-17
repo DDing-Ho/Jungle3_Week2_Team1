@@ -13,7 +13,7 @@ namespace
 
 UClass* ACubeActor::StaticClass()
 {
-	static UClass ClassInfo("ACubeActor", AActor::StaticClass(), &CreateACubeActorInstance);
+	static UClass ClassInfo("ACubeActor", AActor::StaticClass(), &CreateACubeActorInstance, static_cast<uint32>(sizeof(ACubeActor)));
 	return &ClassInfo;
 }
 

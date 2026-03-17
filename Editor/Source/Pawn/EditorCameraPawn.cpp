@@ -10,7 +10,7 @@ namespace
 }
 UClass* AEditorCameraPawn::StaticClass()
 {
-	static UClass ClassInfo("AEditorCameraPawn", AActor::StaticClass(), &CreateEditorCameraPawnInstance);
+	static UClass ClassInfo("AEditorCameraPawn", AActor::StaticClass(), &CreateEditorCameraPawnInstance, static_cast<uint32>(sizeof(AEditorCameraPawn)));
 	return &ClassInfo;
 }
 
@@ -19,5 +19,4 @@ AEditorCameraPawn::AEditorCameraPawn(UClass* InClass, const FString& InName, UOb
 {
 	CameraCompenent = FObjectFactory::ConstructObject<UCameraComponent>(this);
 	AddOwnedComponent(CameraCompenent);
-
 }

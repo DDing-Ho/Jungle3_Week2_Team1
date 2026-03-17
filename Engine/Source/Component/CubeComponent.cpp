@@ -11,7 +11,7 @@ namespace
 
 UClass* UCubeComponent::StaticClass()
 {
-	static UClass ClassInfo("UCubeComponent", UPrimitiveComponent::StaticClass(), &CreateUCubeComponentInstance);
+	static UClass ClassInfo("UCubeComponent", UPrimitiveComponent::StaticClass(), &CreateUCubeComponentInstance, static_cast<uint32>(sizeof(UCubeComponent)));
 	return &ClassInfo;
 }
 

@@ -64,7 +64,7 @@ namespace
 
 UClass* UObject::StaticClass()
 {
-	static UClass ClassInfo("UObject", nullptr, &CreateUObjectInstance);
+	static UClass ClassInfo("UObject", nullptr, &CreateUObjectInstance , static_cast<uint32>(sizeof(UObject)));
 	return &ClassInfo;
 }
 

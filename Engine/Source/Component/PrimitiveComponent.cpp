@@ -10,6 +10,6 @@ namespace
 
 UClass* UPrimitiveComponent::StaticClass()
 {
-	static UClass ClassInfo("UPrimitiveComponent", USceneComponent::StaticClass(), &CreateUPrimitiveComponentInstance);
+	static UClass ClassInfo("UPrimitiveComponent", USceneComponent::StaticClass(), &CreateUPrimitiveComponentInstance, static_cast<uint32>(sizeof(USceneComponent)));
 	return &ClassInfo;
 }

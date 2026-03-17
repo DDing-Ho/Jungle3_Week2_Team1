@@ -10,6 +10,6 @@ namespace
 
 UClass* UActorComponent::StaticClass()
 {
-    static UClass ClassInfo("UActorComponent", UObject::StaticClass(), &CreateUActorComponentInstance);
+    static UClass ClassInfo("UActorComponent", UObject::StaticClass(), &CreateUActorComponentInstance, static_cast<uint32>(sizeof(UActorComponent)));
     return &ClassInfo;
 }

@@ -11,7 +11,7 @@ namespace
 
 UClass* UCameraComponent::StaticClass()
 {
-	static UClass ClassInfo("UCameraComponent", USceneComponent::StaticClass(), &CreateUCameraComponentInstance);
+	static UClass ClassInfo("UCameraComponent", USceneComponent::StaticClass(), &CreateUCameraComponentInstance, static_cast<uint32>(sizeof(UCameraComponent)));
 	return &ClassInfo;
 }
 

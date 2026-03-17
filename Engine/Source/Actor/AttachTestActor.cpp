@@ -13,7 +13,7 @@ namespace
 
 UClass* AAttachTestActor::StaticClass()
 {
-	static UClass ClassInfo("AAttachTestActor", AActor::StaticClass(), &CreateAAttachTestActorInstance);
+	static UClass ClassInfo("AAttachTestActor", AActor::StaticClass(), &CreateAAttachTestActorInstance, static_cast<uint32>(sizeof(AAttachTestActor)));
 	return &ClassInfo;
 }
 

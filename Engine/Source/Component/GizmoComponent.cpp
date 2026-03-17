@@ -13,7 +13,7 @@ namespace
 
 UClass* UGizmoComponent::StaticClass()
 {
-	static UClass ClassInfo("UGizmoComponent", UPrimitiveComponent::StaticClass(), &CreateUGizmoComponentInstance);
+	static UClass ClassInfo("UGizmoComponent", UPrimitiveComponent::StaticClass(), &CreateUGizmoComponentInstance, static_cast<uint32>(sizeof(UGizmoComponent)));
 	return &ClassInfo;
 }
 

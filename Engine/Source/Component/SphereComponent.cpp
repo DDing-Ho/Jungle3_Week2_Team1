@@ -11,7 +11,7 @@ namespace
 
 UClass* USphereComponent::StaticClass()
 {
-	static UClass ClassInfo("USphereComponent", UPrimitiveComponent::StaticClass(), &CreateUSphereComponentInstance);
+	static UClass ClassInfo("USphereComponent", UPrimitiveComponent::StaticClass(), &CreateUSphereComponentInstance, static_cast<uint32>(sizeof(USphereComponent)));
 	return &ClassInfo;
 }
 

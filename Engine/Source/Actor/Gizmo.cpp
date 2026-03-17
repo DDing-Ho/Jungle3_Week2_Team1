@@ -23,7 +23,7 @@ AGizmo::AGizmo(UClass* InClass, const FString& InName, UObject* InOuter)
 
 UClass* AGizmo::StaticClass()
 {
-	static UClass ClassInfo("AGizmo", AActor::StaticClass(), &CreateAGizmoInstance);
+	static UClass ClassInfo("AGizmo", AActor::StaticClass(), &CreateAGizmoInstance, static_cast<uint32>(sizeof(AGizmo)));
 	return &ClassInfo;
 }
 

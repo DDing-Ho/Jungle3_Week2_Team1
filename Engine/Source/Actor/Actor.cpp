@@ -12,7 +12,7 @@ namespace
 
 UClass* AActor::StaticClass()
 {
-	static UClass ClassInfo("AActor", UObject::StaticClass(), &CreateAActorInstance);
+	static UClass ClassInfo("AActor", UObject::StaticClass(), &CreateAActorInstance, static_cast<uint32>(sizeof(AActor)));
 	return &ClassInfo;
 }
 
