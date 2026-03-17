@@ -1,12 +1,8 @@
 #include "Core.h"
+#include "Core/Paths.h"
+#include "Core/ConsoleVariableManager.h"
 
-#include "Object/Scene/Scene.h"
-#include "Object/Actor/Actor.h"
-#include "Renderer/Renderer.h"
-#include "Renderer/ShaderManager.h"
-#include "Input/InputManager.h"
 #include "Camera/Camera.h"
-#include "Component/PrimitiveComponent.h"
 #include "Primitive/PrimitiveBase.h"
 #include "Math/Frustum.h"
 
@@ -15,40 +11,29 @@ CCore::~CCore()
 	Release();
 }
 
-
-
 bool CCore::Initialize(HWND Hwnd, int32 Width, int32 Height)
 {
-	WindowWidth = Width;
-	WindowHeight = Height;
+	FPaths::Initialize();
 
 	// Renderer
-	Renderer = new CRenderer();
+	Renderer = std::make_unique<CRenderer>();
 	if (!Renderer->Initialize(Hwnd, Width, Height))
 	{
 		return false;
 	}
 
-	// ShaderManager
-	ShaderManager = new CShaderManager();
-	if (!ShaderManager->LoadVertexShader(Renderer->GetDevice(), L"../Engine/Shaders/VertexShader.hlsl"))
-	{
-		return false;
-	}
-	if (!ShaderManager->LoadPixelShader(Renderer->GetDevice(), L"../Engine/Shaders/PixelShader.hlsl"))
-	{
-		return false;
-	}
-
 	// InputManager
-	InputManager = new CInputManager();
+	InputManager = std::make_unique<CInputManager>();
 
 	// Timer
 	Timer.Initialize();
 
+	// Console Variables
+	RegisterConsoleVariables();
+
 	// Scene
-	Scene = new UScene(UScene::StaticClass(), "DefaultScene");
-	Scene->InitializeDefaultScene(static_cast<float>(Width) / static_cast<float>(Height));
+	Scene = std::make_unique<UScene>(UScene::StaticClass(), "DefaultScene");
+	Scene->InitializeDefaultScene(static_cast<float>(Width) / static_cast<float>(Height), Renderer->GetDevice());
 
 	return true;
 }
@@ -63,26 +48,15 @@ void CCore::ProcessInput(HWND Hwnd, UINT Msg, WPARAM WParam, LPARAM LParam)
 
 void CCore::Release()
 {
-	delete Scene;
-	Scene = nullptr;
-
-	delete InputManager;
-	InputManager = nullptr;
-
-	if (ShaderManager)
-	{
-		ShaderManager->Release();
-		delete ShaderManager;
-		ShaderManager = nullptr;
-	}
+	Scene.reset();
+	InputManager.reset();
 
 	CPrimitiveBase::ClearCache();
 
 	if (Renderer)
 	{
 		Renderer->Release();
-		delete Renderer;
-		Renderer = nullptr;
+		Renderer.reset();
 	}
 }
 
@@ -151,68 +125,52 @@ void CCore::Render()
 
 	Renderer->BeginFrame();
 
-	ShaderManager->Bind(Renderer->GetDeviceContext());
-
+	// 커맨드 큐 준비 (이전 프레임 크기로 reserve)
+	FRenderCommandQueue CommandQueue;
+	CommandQueue.Reserve(Renderer->GetPrevCommandCount());
 	CCamera* Camera = Scene->GetCamera();
 	FFrustum Frustum;
 	if (Camera)
 	{
-		FMatrix VP = Camera->GetViewMatrix() * Camera->GetProjectionMatrix();
-		Renderer->ViewProjectionMatrix = VP;
+		CommandQueue.ViewMatrix = Camera->GetViewMatrix();
+		CommandQueue.ProjectionMatrix = Camera->GetProjectionMatrix();
+		FMatrix VP = CommandQueue.ViewMatrix * CommandQueue.ProjectionMatrix;
 		Frustum.ExtractFromVP(VP);
 	}
 
-	for (AActor* Actor : Scene->GetActors())
-	{
-		if (!Actor || Actor->IsPendingDestroy())
-		{
-			continue;
-		}
+	// Scene이 큐에 커맨드를 쌓음 (Renderer 참조 없음)
+	Scene->CollectRenderCommands(Frustum, CommandQueue);
 
-		for (UActorComponent* Comp : Actor->GetComponents())
-		{
-			UPrimitiveComponent* PrimComp = dynamic_cast<UPrimitiveComponent*>(Comp);
-			if (PrimComp && PrimComp->GetPrimitive())
-			{
-				if (!Frustum.IsVisible(PrimComp->GetWorldBounds()))
-				{
-					continue;
-				}
-
-				Renderer->AddCommand({
-					PrimComp->GetPrimitive()->GetMeshData(),
-					PrimComp->GetWorldTransform()
-					});
-			}
-		}
-	}
-
+	// Renderer가 큐를 소비
+	Renderer->SubmitCommands(CommandQueue);
 	Renderer->ExecuteCommands();
-
-	if (PostRenderCallback)
-	{
-		PostRenderCallback(Renderer);
-	}
 
 	Renderer->EndFrame();
 }
+
 void CCore::OnResize(int32 Width, int32 Height)
 {
 	if (Width == 0 || Height == 0) return;
-
-	WindowWidth = Width;
-	WindowHeight = Height;
-
 
 	if (Renderer)
 	{
 		Renderer->OnResize(Width, Height);
 	}
 
-
 	if (Scene && Scene->GetCamera())
 	{
 		float NewAspect = static_cast<float>(Width) / static_cast<float>(Height);
 		Scene->GetCamera()->SetAspectRatio(NewAspect);
 	}
+}
+
+void CCore::RegisterConsoleVariables()
+{
+	FConsoleVariableManager& CVM = FConsoleVariableManager::Get();
+
+	CVM.Register("t.MaxFPS", 0.0f, "Maximum FPS limit (0 = unlimited)")->SetOnChanged(
+		[this](FConsoleVariable* Var) { Timer.SetMaxFPS(Var->GetFloat()); });
+
+	CVM.Register("r.VSync", 0, "Enable VSync (0 = off, 1 = on)")->SetOnChanged(
+		[this](FConsoleVariable* Var) { if (Renderer) Renderer->SetVSync(Var->GetInt() != 0); });
 }
