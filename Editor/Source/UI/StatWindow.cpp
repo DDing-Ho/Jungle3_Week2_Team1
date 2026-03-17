@@ -21,10 +21,20 @@ void CStatWindow::Render()
 	if (UClassPair.second != nullptr)
 	{
 		ImGui::Text("Class NAME :  %s", UClassPair.first.c_str());
-		ImGui::Text("Class NAME :  %d", UClassPair.second->GetObjectSize());
+		ImGui::Text("Class Size :  %d", UClassPair.second->GetObjectSize());
 
 	}
 
+	for (auto& Object : GUObjectArray)
+	{
+		if (Object == nullptr)
+		{
+			continue;
+		}
+		ImGui::Text("Class NAME :  %s", Object->GetName().c_str());
+		ImGui::Text("Class Size :  %d", Object->GetClass()->GetObjectSize());
+
+	}
 
 
 	ImGui::End();
