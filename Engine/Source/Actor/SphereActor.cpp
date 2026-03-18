@@ -17,8 +17,7 @@ UClass* ASphereActor::StaticClass()
 	return &ClassInfo;
 }
 
-ASphereActor::ASphereActor(UClass* InClass, const FString& InName, UObject* InOuter)
-	: AActor(InClass, InName, InOuter)
+ASphereActor::ASphereActor(UClass* InClass, const FString& InName, UObject* InOuter) : AActor(InClass, InName, InOuter)
 {
 }
 

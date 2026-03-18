@@ -213,6 +213,7 @@
     <ClCompile Include="Source\Core\Paths.cpp" />
     <ClCompile Include="Source\Primitive\PrimitiveSky.cpp" />
     <ClCompile Include="Source\Component\SkyComponent.cpp" />
+    <ClCompile Include="Source\Actor\SkySphereActor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\CoreMinimal.h">

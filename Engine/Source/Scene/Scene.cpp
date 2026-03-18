@@ -15,7 +15,7 @@
 #include "Renderer/MaterialManager.h"
 #include "Renderer/RenderCommand.h"
 #include "ThirdParty/nlohmann/json.hpp"
-
+#include "Actor/SkySphereActor.h"
 #include <algorithm>
 #include <filesystem>
 #include <fstream>
@@ -168,6 +168,10 @@ void UScene::LoadSceneFromFile(const FString& FilePath, ID3D11Device* Device)
 		{
 			Actor = SpawnActor<AAttachTestActor>(ActorName);
 		}
+		else if (Type == "SkySphere")
+		{
+			Actor = SpawnActor<ASkySphereActor>(ActorName);
+		}
 		else
 		{
 			++ActorIndex;
@@ -262,6 +266,10 @@ void UScene::SaveSceneToFile(const FString& FilePath)
 		else if (Actor->IsA(AAttachTestActor::StaticClass()))
 		{
 			Type = "AttachTest";
+		}
+		else if (Actor->IsA(ASkySphereActor::StaticClass()))
+		{
+			Type = "SkySphere";
 		}
 		else
 		{
