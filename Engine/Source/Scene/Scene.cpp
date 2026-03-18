@@ -458,6 +458,14 @@ void UScene::CollectRenderCommands(const FFrustum& Frustum, FRenderCommandQueue&
 		Command.MeshData = PrimitiveComponent->GetPrimitive()->GetMeshData();
 		Command.WorldMatrix = PrimitiveComponent->GetWorldTransform();
 		Command.Material = PrimitiveComponent->GetMaterial();
+
+		AActor* Owner = PrimitiveComponent->GetOwner();
+		if (Owner && Owner->IsA(ASkySphereActor::StaticClass()))
+		{
+			Command.bDisableCulling = true;
+			Command.bDisableDepthWrite = true;
+		}
+	
 		OutQueue.AddCommand(Command);
 	}
 }
