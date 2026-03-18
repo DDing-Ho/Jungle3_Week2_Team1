@@ -248,6 +248,17 @@ bool CRenderer::Initialize(HWND InHwnd, int32 Width, int32 Height)
 		return false;
 	}
 
+	//sky or background version Depth state
+	D3D11_DEPTH_STENCIL_DESC SkyDepthDesc = {};
+	SkyDepthDesc.DepthEnable = TRUE;                        
+	SkyDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; 
+	SkyDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;       
+	Hr = Device->CreateDepthStencilState(&SkyDepthDesc, &SkyDepthState);
+	if (FAILED(Hr))
+	{
+		MessageBox(0, L"CreateDepthStencilState (Sky) Failed.", 0, 0);
+		return false;
+	}
 	return true;
 }
 
@@ -395,7 +406,12 @@ void CRenderer::ExecuteCommands()
 				CurrentRasterizerState = DesiredRasterizerState;
 			}
 
-			ID3D11DepthStencilState* DesiredDepthStencilState = (Cmd.bDisableDepthTest || Cmd.bDisableDepthWrite) ? OverlayDepthState : nullptr;
+			ID3D11DepthStencilState* DesiredDepthStencilState = nullptr;
+			if (Cmd.bDisableDepthTest)
+				DesiredDepthStencilState = OverlayDepthState; 
+			else if (Cmd.bDisableDepthWrite)
+				DesiredDepthStencilState = SkyDepthState;
+			
 			if (DesiredDepthStencilState != CurrentDepthStencilState)
 			{
 				DeviceContext->OMSetDepthStencilState(DesiredDepthStencilState, 0);
@@ -658,9 +674,11 @@ void CRenderer::Release()
 		OverlayDepthState->Release();
 		OverlayDepthState = nullptr;
 	}
-
-
-
+	if (SkyDepthState) 
+	{ 
+		SkyDepthState->Release();
+		SkyDepthState = nullptr; 
+	}
 	if (RasterizerState)
 	{
 		RasterizerState->Release();

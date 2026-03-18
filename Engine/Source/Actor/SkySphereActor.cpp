@@ -50,6 +50,7 @@ void ASkySphereActor::Tick(float DeltaTime)
 			{
 				FTransform T = Root->GetRelativeTransform();
 				T.SetTranslation(CameraComp->GetCamera()->GetPosition());
+				T.SetScale3D({ 2000.0f, 2000.0f, 2000.0f }); // tempcode need a fix
 				Root->SetRelativeTransform(T);
 			}
 		}

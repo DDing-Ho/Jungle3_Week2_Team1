@@ -102,7 +102,7 @@ private:
 	ID3D11Buffer* LineVertexBuffer = nullptr;
 	ID3D11DepthStencilState* LineDepthState = nullptr;
 	ID3D11DepthStencilState* OverlayDepthState = nullptr;
-
+	ID3D11DepthStencilState* SkyDepthState = nullptr;
 	// 아웃라인 리소스
 	ID3D11DepthStencilState* StencilWriteState = nullptr;
 	ID3D11DepthStencilState* StencilTestState = nullptr;
