@@ -101,8 +101,8 @@ AActor* CPicker::PickActor(UScene* Scene, int32 ScreenX, int32 ScreenY,
 		{
 			continue;
 		}
-		if (Actor->IsA(ASkySphereActor::StaticClass()))
-			continue;
+		//if (Actor->IsA(ASkySphereActor::StaticClass()))
+		//	continue;
 		for (UActorComponent* Component : Actor->GetComponents())
 		{
 			if (!Component->IsA(UPrimitiveComponent::StaticClass()))

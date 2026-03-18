@@ -368,9 +368,11 @@ void CRenderer::ExecuteCommands()
 
 	std::sort(CommandList.begin(), CommandList.end(),
 		[](const FRenderCommand& A, const FRenderCommand& B)
-		{
-			return A.SortKey < B.SortKey;
-		});
+	{
+		if (A.bDisableDepthWrite != B.bDisableDepthWrite)
+			return A.bDisableDepthWrite < B.bDisableDepthWrite; 
+		return A.SortKey < B.SortKey;
+	});
 
 	auto ExecutePass = [this, &CBs](bool bOverlayPass)
 	{
@@ -433,52 +435,6 @@ void CRenderer::ExecuteCommands()
 
 	return;
 
-	// SortKey 기준 정렬 → Material, MeshData 순 State Change 최소화
-	std::sort(CommandList.begin(), CommandList.end(),
-		[](const FRenderCommand& A, const FRenderCommand& B)
-		{
-		// bDisableDepthWrite(= Sky/Background)를 항상 먼저 렌더링
-		if (A.bDisableDepthWrite != B.bDisableDepthWrite)
-			return A.bDisableDepthWrite > B.bDisableDepthWrite;
-		return A.SortKey < B.SortKey;
-		});
-
-	FMaterial* CurrentMaterial = nullptr;
-	FMeshData* CurrentMesh = nullptr;
-
-	for (const auto& Cmd : CommandList)
-	{
-		if (!Cmd.MeshData)
-		{
-			continue;
-		}
-
-		// Material이 바뀔 때만 셰이더 바인딩
-		if (Cmd.Material != CurrentMaterial)
-		{
-			Cmd.Material->Bind(DeviceContext);
-			CurrentMaterial = Cmd.Material;
-		}
-
-		// 메시가 바뀔 때만 바인딩
-		if (Cmd.MeshData != CurrentMesh)
-		{
-			Cmd.MeshData->Bind(DeviceContext);
-			CurrentMesh = Cmd.MeshData;
-		}
-
-		// 오브젝트별 상수 버퍼 업데이트
-		UpdateObjectConstantBuffer(Cmd.WorldMatrix);
-
-		// Draw
-		DeviceContext->DrawIndexed(Cmd.MeshData->IndexCount, 0, 0);
-	}
-
-	// 메시 커맨드 실행 후 PostRender (아웃라인, 라인 등)
-	if (PostRenderCallback)
-	{
-		PostRenderCallback(this);
-	}
 }
 
 bool CRenderer::CreateConstantBuffers()
