@@ -24,12 +24,12 @@ ASphereActor::ASphereActor(UClass* InClass, const FString& InName, UObject* InOu
 
 void ASphereActor::PostSpawnInitialize()
 {
-	PrimitiveComponent = FObjectFactory::ConstructObject<USphereComponent>(this);
+	PrimitiveComponent = FObjectFactory::ConstructObject<USphereComponent>(this, "ASphereActor");
 	AddOwnedComponent(PrimitiveComponent);
 
 	if (bUseRandomColor)
 	{
-		RandomColorComponent = FObjectFactory::ConstructObject<URandomColorComponent>(this);
+		RandomColorComponent = FObjectFactory::ConstructObject<URandomColorComponent>(this , "RandomColorComponent");
 		AddOwnedComponent(RandomColorComponent);
 	}
 

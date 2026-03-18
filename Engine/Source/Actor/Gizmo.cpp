@@ -29,7 +29,7 @@ UClass* AGizmo::StaticClass()
 
 void AGizmo::PostSpawnInitialize()
 {
-	UPrimitiveComponent* GizmoComp = FObjectFactory::ConstructObject<UGizmoComponent>(this);
+	UPrimitiveComponent* GizmoComp = FObjectFactory::ConstructObject<UGizmoComponent>(this , "AGizmo");
 	this->AddOwnedComponent(GizmoComp);
 }
 

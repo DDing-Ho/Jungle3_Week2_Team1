@@ -24,12 +24,12 @@ ACubeActor::ACubeActor(UClass* InClass, const FString& InName, UObject* InOuter)
 
 void ACubeActor::PostSpawnInitialize()
 {
-	PrimitiveComponent = FObjectFactory::ConstructObject<UCubeComponent>(this);
+	PrimitiveComponent = FObjectFactory::ConstructObject<UCubeComponent>(this, "ACubeActor");
 	AddOwnedComponent(PrimitiveComponent);
 
 	if (bUseRandomColor)
 	{
-		RandomColorComponent = FObjectFactory::ConstructObject<URandomColorComponent>(this);
+		RandomColorComponent = FObjectFactory::ConstructObject<URandomColorComponent>(this,"RandomColorComponent");
 		AddOwnedComponent(RandomColorComponent);
 	}
 

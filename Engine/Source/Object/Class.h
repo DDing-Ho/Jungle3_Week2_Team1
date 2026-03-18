@@ -15,14 +15,14 @@ public:
 	bool IsChildOf(const UClass* Other) const;
 
 	UObject* CreateInstance(UObject* InOuter, const FString& InName) const;
-	void AddAllocation( uint32 InCount = 0);
-	void SubstractAllocation(uint32 InCount = 0);
+	void AddAllocation( uint32 InCount = 1);
+	void SubstractAllocation(uint32 InCount= 1);
 	uint32 GetObjectSize();
-
+	uint32 GetClassAllocationCounts();
+	uint32 GetTotalAllocationBytes();
 private:
 	FString Name;
 	UClass* SuperClass = nullptr;
-
 	CreateFunc Factory = nullptr;
 	uint32 UObjectSize;
 	uint32 ClassAllocationCounts;

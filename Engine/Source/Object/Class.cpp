@@ -36,12 +36,12 @@ UObject* UClass::CreateInstance(UObject* InOuter, const FString& InName) const
     return Factory ? Factory(InOuter, InName) : nullptr;
 }
 
-void UClass::AddAllocation(uint32 InCount = 0)
+void UClass::AddAllocation(uint32 InCount)
 {
 	ClassAllocationCounts += InCount;
 }
 
-void UClass::SubstractAllocation( uint32 InCount = 0)
+void UClass::SubstractAllocation( uint32 InCount)
 {
 	ClassAllocationCounts -= InCount;
 
@@ -50,4 +50,14 @@ void UClass::SubstractAllocation( uint32 InCount = 0)
 uint32 UClass::GetObjectSize()
 {
 	return UObjectSize;
+}
+
+uint32 UClass::GetClassAllocationCounts()
+{
+	return ClassAllocationCounts;
+}
+
+uint32 UClass::GetTotalAllocationBytes()
+{
+	return UObjectSize * ClassAllocationCounts;
 }

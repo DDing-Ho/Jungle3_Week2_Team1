@@ -17,5 +17,5 @@ private:
 	uint32 ObjectCount = 0;
 	uint32 HeapUsageBytes = 0;
 	TPair<FString, UClass*> UClassPair;
-
+	TMap<FString, uint32> UClassAllocationMap;
 };

@@ -21,9 +21,7 @@ public:
 
 	// 템플릿 버전 — T::StaticClass()를 자동으로 전달
 	template<typename T>
-	static T* ConstructObject(
-		UObject* InOuter = nullptr,
-		const FString& InName = "None"
+	static T* ConstructObject(UObject* InOuter = nullptr,const FString& InName = "None"
 	)
 	{
 		static_assert(std::is_base_of_v<UObject, T>, "T must derive from UObject");

@@ -36,7 +36,7 @@ namespace
 			AActor* PreviewActor = PreviewScene->SpawnActor<AActor>("PreviewCube");
 			if (PreviewActor)
 			{
-				UCubeComponent* PreviewComponent = FObjectFactory::ConstructObject<UCubeComponent>(PreviewActor);
+				UCubeComponent* PreviewComponent = FObjectFactory::ConstructObject<UCubeComponent>(PreviewActor,"CubeComponent");
 				PreviewActor->AddOwnedComponent(PreviewComponent);
 				PreviewActor->SetActorLocation({ 0.0f, 0.0f, 0.0f });
 			}

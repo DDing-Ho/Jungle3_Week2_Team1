@@ -17,6 +17,6 @@ UClass* AEditorCameraPawn::StaticClass()
 AEditorCameraPawn::AEditorCameraPawn(UClass* InClass, const FString& InName, UObject* InOuter)
 	: AActor(InClass, InName, InOuter)
 {
-	CameraCompenent = FObjectFactory::ConstructObject<UCameraComponent>(this);
+	CameraCompenent = FObjectFactory::ConstructObject<UCameraComponent>(this,"AEditorCameraPawn");
 	AddOwnedComponent(CameraCompenent);
 }

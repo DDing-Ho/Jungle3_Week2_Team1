@@ -24,8 +24,8 @@ AAttachTestActor::AAttachTestActor(UClass* InClass, const FString& InName, UObje
 
 void AAttachTestActor::PostSpawnInitialize()
 {
-	SphereComponent = FObjectFactory::ConstructObject<USphereComponent>(this);
-	CubeComponent = FObjectFactory::ConstructObject<UCubeComponent>(this);
+	SphereComponent = FObjectFactory::ConstructObject<USphereComponent>(this,"SphereComponent");
+	CubeComponent = FObjectFactory::ConstructObject<UCubeComponent>(this,"CubeComponent");
 
 	CubeComponent->AttachTo(SphereComponent);
 	CubeComponent->SetRelativeTransform({ FRotator::MakeFromEuler({ 45.0f, 45.0f, 45.0f }), {0.0f, 0.0f, 2.0f}, {0.5f, 0.5f, 0.5f} });
