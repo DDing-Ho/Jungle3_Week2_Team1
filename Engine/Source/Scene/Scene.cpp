@@ -462,8 +462,9 @@ void UScene::CollectRenderCommands(const FFrustum& Frustum, FRenderCommandQueue&
 		AActor* Owner = PrimitiveComponent->GetOwner();
 		if (Owner && Owner->IsA(ASkySphereActor::StaticClass()))
 		{
-			Command.bDisableCulling = true;
-			Command.bDisableDepthWrite = true;
+			Command.SortKey = 0;           // 항상 첫 번째
+			Command.bDisableDepthWrite = true;       // Depth buffer 오염 없음
+			Command.bDisableCulling = true;       // 안쪽에서 보임 (Two Sided)
 		}
 	
 		OutQueue.AddCommand(Command);
