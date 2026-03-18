@@ -8,6 +8,7 @@
 #include "Primitive/PrimitiveGizmo.h"
 #include "Primitive/UnrealEditorStyledGizmo.h"
 #include "Renderer/RenderCommand.h"
+#include "Renderer/Renderer.h"
 #include "Scene/Scene.h"
 
 #include <algorithm>
@@ -27,6 +28,11 @@ namespace
 	constexpr float GizmoViewportHeightRatio = 0.30f;
 	constexpr float ParallelTolerance = 1.0e-6f;
 	const FVector4 ActiveAxisColor = { 1.0f, 1.0f, 0.0f, 1.0f };
+	const FVector4 DebugPlaneColor = { 0.95f, 0.95f, 0.25f, 1.0f };
+	const FVector4 DebugPlaneDiagonalColor = { 0.65f, 0.65f, 0.20f, 1.0f };
+	const FVector4 DebugPlaneNormalColor = { 0.35f, 0.85f, 1.0f, 1.0f };
+	const FVector4 DebugPlaneStartColor = { 0.15f, 1.0f, 0.35f, 1.0f };
+	const FVector4 DebugPlaneCurrentColor = { 1.0f, 0.45f, 0.15f, 1.0f };
 
 	float ClampScaleComponent(float Value)
 	{
@@ -45,6 +51,51 @@ namespace
 			ClampScaleComponent(InScale.X),
 			ClampScaleComponent(InScale.Y),
 			ClampScaleComponent(InScale.Z));
+	}
+
+	FVector ProjectVectorOnPlane(const FVector& Vector, const FVector& PlaneNormal)
+	{
+		return Vector - PlaneNormal * FVector::DotProduct(Vector, PlaneNormal);
+	}
+
+	FVector BuildPlaneTangent(const FVector& PlaneNormal, const FVector& PreferredAxis, const FVector& FallbackAxis)
+	{
+		FVector Tangent = ProjectVectorOnPlane(PreferredAxis, PlaneNormal).GetSafeNormal();
+		if (!Tangent.IsNearlyZero(ParallelTolerance))
+		{
+			return Tangent;
+		}
+
+		Tangent = ProjectVectorOnPlane(FallbackAxis, PlaneNormal).GetSafeNormal();
+		if (!Tangent.IsNearlyZero(ParallelTolerance))
+		{
+			return Tangent;
+		}
+
+		Tangent = ProjectVectorOnPlane(FVector::ForwardVector, PlaneNormal).GetSafeNormal();
+		if (!Tangent.IsNearlyZero(ParallelTolerance))
+		{
+			return Tangent;
+		}
+
+		Tangent = ProjectVectorOnPlane(FVector::RightVector, PlaneNormal).GetSafeNormal();
+		if (!Tangent.IsNearlyZero(ParallelTolerance))
+		{
+			return Tangent;
+		}
+
+		return ProjectVectorOnPlane(FVector::UpVector, PlaneNormal).GetSafeNormal();
+	}
+
+	void DrawPointMarker(CRenderer* Renderer, const FVector& Position, const FVector& AxisX, const FVector& AxisY, float MarkerSize, const FVector4& Color)
+	{
+		if (!Renderer)
+		{
+			return;
+		}
+
+		Renderer->DrawLine(Position - AxisX * MarkerSize, Position + AxisX * MarkerSize, Color);
+		Renderer->DrawLine(Position - AxisY * MarkerSize, Position + AxisY * MarkerSize, Color);
 	}
 }
 
@@ -369,6 +420,8 @@ bool CGizmo::UpdateDrag(AActor* SelectedActor, UScene* Scene, const CPicker& Pic
 		return false;
 	}
 
+	DragCurrentIntersection = Intersection;
+
 	if (Mode == EGizmoMode::Location)
 	{
 		FVector NewWorldLocation = DragStartActorLocation;
@@ -501,6 +554,7 @@ void CGizmo::EndDrag()
 	DragStartActorLocation = FVector::ZeroVector;
 	DragStartGizmoLocation = FVector::ZeroVector;
 	DragStartIntersection = FVector::ZeroVector;
+	DragCurrentIntersection = FVector::ZeroVector;
 	DragPlaneNormal = FVector::ZeroVector;
 	DragStartRotationVector = FVector::ZeroVector;
 	DragStartActorScale = FVector::OneVector;
@@ -508,6 +562,65 @@ void CGizmo::EndDrag()
 	DragStartActorRotation = FQuat::Identity;
 	DragStartScreenX = 0;
 	DragStartScreenY = 0;
+}
+
+void CGizmo::RenderDebugOverlay(const CCamera* Camera, CRenderer* Renderer) const
+{
+	if (ActiveAxis == EGizmoAxis::None || !Camera || !Renderer)
+	{
+		return;
+	}
+
+	const FVector PlaneNormal = DragPlaneNormal.GetSafeNormal();
+	if (PlaneNormal.IsNearlyZero(ParallelTolerance))
+	{
+		return;
+	}
+
+	const FVector CameraUp = FVector::CrossProduct(Camera->GetForward(), Camera->GetRight()).GetSafeNormal();
+	const FVector PlaneAxisX = BuildPlaneTangent(PlaneNormal, Camera->GetRight(), CameraUp);
+	if (PlaneAxisX.IsNearlyZero(ParallelTolerance))
+	{
+		return;
+	}
+
+	const FVector PlaneAxisY = FVector::CrossProduct(PlaneNormal, PlaneAxisX).GetSafeNormal();
+	if (PlaneAxisY.IsNearlyZero(ParallelTolerance))
+	{
+		return;
+	}
+
+	const float GizmoScale = GetRenderGizmoScale(ComputeGizmoScale(DragStartGizmoLocation, Camera));
+	float PlaneHalfExtent = 45.0f * GizmoScale;
+	if (Mode == EGizmoMode::Rotation)
+	{
+		PlaneHalfExtent = 55.0f * GizmoScale;
+	}
+	else if (Mode == EGizmoMode::Scale)
+	{
+		PlaneHalfExtent = 35.0f * GizmoScale;
+	}
+
+	const FVector Center = DragStartGizmoLocation;
+	const FVector Corner0 = Center - PlaneAxisX * PlaneHalfExtent - PlaneAxisY * PlaneHalfExtent;
+	const FVector Corner1 = Center + PlaneAxisX * PlaneHalfExtent - PlaneAxisY * PlaneHalfExtent;
+	const FVector Corner2 = Center + PlaneAxisX * PlaneHalfExtent + PlaneAxisY * PlaneHalfExtent;
+	const FVector Corner3 = Center - PlaneAxisX * PlaneHalfExtent + PlaneAxisY * PlaneHalfExtent;
+
+	Renderer->DrawLine(Corner0, Corner1, DebugPlaneColor);
+	Renderer->DrawLine(Corner1, Corner2, DebugPlaneColor);
+	Renderer->DrawLine(Corner2, Corner3, DebugPlaneColor);
+	Renderer->DrawLine(Corner3, Corner0, DebugPlaneColor);
+	Renderer->DrawLine(Corner0, Corner2, DebugPlaneDiagonalColor);
+	Renderer->DrawLine(Corner1, Corner3, DebugPlaneDiagonalColor);
+
+	const float NormalLength = PlaneHalfExtent * 0.55f;
+	Renderer->DrawLine(Center, Center + PlaneNormal * NormalLength, DebugPlaneNormalColor);
+
+	const float MarkerSize = (std::max)(PlaneHalfExtent * 0.08f, 2.0f * GizmoScale);
+	DrawPointMarker(Renderer, DragStartIntersection, PlaneAxisX, PlaneAxisY, MarkerSize, DebugPlaneStartColor);
+	DrawPointMarker(Renderer, DragCurrentIntersection, PlaneAxisX, PlaneAxisY, MarkerSize, DebugPlaneCurrentColor);
+	Renderer->DrawLine(DragStartIntersection, DragCurrentIntersection, ActiveAxisColor);
 }
 
 bool CGizmo::EnsureTranslationMeshes() const
@@ -841,6 +954,7 @@ bool CGizmo::BeginTranslationDrag(EGizmoAxis AxisId, AActor* SelectedActor, USce
 	DragStartActorLocation = GizmoLocation;
 	DragStartGizmoLocation = GizmoLocation;
 	DragStartIntersection = Intersection;
+	DragCurrentIntersection = Intersection;
 	DragPlaneNormal = PlaneNormal;
 	DragStartAxisDistance = (AxisId >= EGizmoAxis::X && AxisId <= EGizmoAxis::Z)
 		? FVector::DotProduct(Intersection - GizmoLocation, Axis)
@@ -876,6 +990,8 @@ bool CGizmo::BeginRotationDrag(EGizmoAxis AxisId, AActor* SelectedActor, UScene*
 	ActiveAxis = AxisId;
 	DragStartActorLocation = GizmoLocation;
 	DragStartGizmoLocation = GizmoLocation;
+	DragStartIntersection = Intersection;
+	DragCurrentIntersection = Intersection;
 	DragPlaneNormal = Axis;
 	DragStartRotationVector = StartVector;
 	DragStartAxisDistance = 0.0f;
@@ -937,6 +1053,7 @@ bool CGizmo::BeginScaleDrag(EGizmoAxis AxisId, AActor* SelectedActor, UScene* Sc
 	DragStartActorLocation = GizmoLocation;
 	DragStartGizmoLocation = GizmoLocation;
 	DragStartIntersection = Intersection;
+	DragCurrentIntersection = Intersection;
 	DragPlaneNormal = PlaneNormal;
 	DragStartActorScale = GetActorRelativeScale(SelectedActor);
 	DragStartAxisDistance = (AxisId >= EGizmoAxis::X && AxisId <= EGizmoAxis::Z)

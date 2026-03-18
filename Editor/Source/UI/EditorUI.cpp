@@ -1,5 +1,6 @@
 #include "EditorUI.h"
 
+#include "EditorViewportClient.h"
 #include "Core/Core.h"
 #include "Object/Object.h"
 #include "Scene/Scene.h"
@@ -119,6 +120,11 @@ void CEditorUI::AttachToRenderer(CRenderer* InRenderer)
 			if (!Core)
 			{
 				return;
+			}
+
+			if (CEditorViewportClient* EditorViewportClient = dynamic_cast<CEditorViewportClient*>(Core->GetViewportClient()))
+			{
+				EditorViewportClient->RenderDebugOverlay(Core, Renderer);
 			}
 
 			AActor* Selected = Core->GetSelectedActor();

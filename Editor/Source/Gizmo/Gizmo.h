@@ -8,6 +8,7 @@
 class AActor;
 class CCamera;
 class CPicker;
+class CRenderer;
 class UScene;
 class USceneComponent;
 struct RotationDesc;
@@ -57,6 +58,7 @@ public:
 	void UpdateHover(AActor* SelectedActor, UScene* Scene, const CPicker& Picker, int32 ScreenX, int32 ScreenY, int32 ScreenWidth, int32 ScreenHeight);
 	void ClearHover();
 	void EndDrag();
+	void RenderDebugOverlay(const CCamera* Camera, CRenderer* Renderer) const;
 
 	bool IsDragging() const { return ActiveAxis != EGizmoAxis::None; }
 
@@ -99,6 +101,7 @@ private:
 	FVector DragStartActorLocation = FVector::ZeroVector;
 	FVector DragStartGizmoLocation = FVector::ZeroVector;
 	FVector DragStartIntersection = FVector::ZeroVector;
+	FVector DragCurrentIntersection = FVector::ZeroVector;
 	FVector DragPlaneNormal = FVector::ZeroVector;
 	FVector DragStartRotationVector = FVector::ZeroVector;
 	FVector DragStartActorScale = FVector::OneVector;

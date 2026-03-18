@@ -194,3 +194,19 @@ void CEditorViewportClient::BuildRenderCommands(CCore* Core, UScene* Scene, cons
 
 	Gizmo.BuildRenderCommands(Core->GetSelectedActor(), Scene->GetCamera(), OutQueue);
 }
+
+void CEditorViewportClient::RenderDebugOverlay(CCore* Core, CRenderer* Renderer) const
+{
+	if (!Core || !Renderer)
+	{
+		return;
+	}
+
+	UScene* Scene = ResolveScene(Core);
+	if (!Scene || !Scene->GetCamera())
+	{
+		return;
+	}
+
+	Gizmo.RenderDebugOverlay(Scene->GetCamera(), Renderer);
+}

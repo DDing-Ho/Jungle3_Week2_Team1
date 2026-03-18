@@ -21,6 +21,7 @@ public:
 	void BuildRenderCommands(CCore* Core, UScene* Scene, const FFrustum& Frustum, FRenderCommandQueue& OutQueue) const override;
 	EGizmoMode GetGizmoMode() const { return Gizmo.GetMode(); }
 	void SetGizmoMode(EGizmoMode InMode) { Gizmo.SetMode(InMode); }
+	void RenderDebugOverlay(CCore* Core, CRenderer* Renderer) const;
 
 private:
 	CEditorUI& EditorUI;
