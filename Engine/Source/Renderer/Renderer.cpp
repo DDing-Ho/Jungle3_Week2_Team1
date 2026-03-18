@@ -437,7 +437,10 @@ void CRenderer::ExecuteCommands()
 	std::sort(CommandList.begin(), CommandList.end(),
 		[](const FRenderCommand& A, const FRenderCommand& B)
 		{
-			return A.SortKey < B.SortKey;
+		// bDisableDepthWrite(= Sky/Background)를 항상 먼저 렌더링
+		if (A.bDisableDepthWrite != B.bDisableDepthWrite)
+			return A.bDisableDepthWrite > B.bDisableDepthWrite;
+		return A.SortKey < B.SortKey;
 		});
 
 	FMaterial* CurrentMaterial = nullptr;

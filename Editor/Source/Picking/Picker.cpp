@@ -6,7 +6,7 @@
 #include "Component/PrimitiveComponent.h"
 #include "Primitive/PrimitiveBase.h"
 #include "Renderer/PrimitiveVertex.h"
-
+#include "Actor/SkySphereActor.h"
 #include <limits>
 
 FRay CPicker::ScreenToRay(int32 ScreenX, int32 ScreenY, int32 ScreenWidth, int32 ScreenHeight,
@@ -101,7 +101,8 @@ AActor* CPicker::PickActor(UScene* Scene, int32 ScreenX, int32 ScreenY,
 		{
 			continue;
 		}
-
+		if (Actor->IsA(ASkySphereActor::StaticClass()))
+			continue;
 		for (UActorComponent* Component : Actor->GetComponents())
 		{
 			if (!Component->IsA(UPrimitiveComponent::StaticClass()))
