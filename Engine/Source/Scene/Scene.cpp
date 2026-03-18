@@ -398,6 +398,15 @@ void UScene::Tick(float DeltaTime)
 		BeginPlay();
 	}
 
+	// 씬 진행 중 스폰된 액터의 BeginPlay 호출 (다음 프레임에 실행)
+	for (AActor* Actor : Actors)
+	{
+		if (Actor && !Actor->HasBegunPlay() && !Actor->IsPendingDestroy())
+		{
+			Actor->BeginPlay();
+		}
+	}
+
 	for (AActor* Actor : Actors)
 	{
 		if (Actor && !Actor->IsPendingDestroy())

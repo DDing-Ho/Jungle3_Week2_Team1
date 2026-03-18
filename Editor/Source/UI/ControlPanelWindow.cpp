@@ -13,6 +13,8 @@
 #include "Core/Paths.h"
 #include "Debug/EngineLog.h"
 #include "Component/CameraComponent.h"
+#include "Component/PrimitiveComponent.h"
+#include "Renderer/MaterialManager.h"
 #include <filesystem>
 
 namespace
@@ -120,6 +122,29 @@ void CControlPanelWindow::Render(CCore* Core)
 		const char* SpawnTypes[] = { "Cube", "Sphere", "AttachTest" };
 		ImGui::Combo("Type", &SpawnTypeIndex, SpawnTypes, IM_ARRAYSIZE(SpawnTypes));
 
+		// Material 선택 콤보박스
+		static int32 MaterialIndex = 0;
+		TArray<FString> MaterialNames = FMaterialManager::Get().GetLoadedNames();
+		std::sort(MaterialNames.begin(), MaterialNames.end());
+
+		if (ImGui::BeginCombo("Material", MaterialIndex < static_cast<int32>(MaterialNames.size())
+			? MaterialNames[MaterialIndex].c_str() : "None"))
+		{
+			for (int32 i = 0; i < static_cast<int32>(MaterialNames.size()); ++i)
+			{
+				const bool bSelected = (MaterialIndex == i);
+				if (ImGui::Selectable(MaterialNames[i].c_str(), bSelected))
+				{
+					MaterialIndex = i;
+				}
+				if (bSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
+
 		if (ImGui::Button("Spawn"))
 		{
 			UScene* Scene = Core->GetScene();
@@ -140,8 +165,22 @@ void CControlPanelWindow::Render(CCore* Core)
 				NewActor = Scene->SpawnActor<AAttachTestActor>(Name);
 			}
 
+			// 선택된 Material 적용
+			if (NewActor && MaterialIndex < static_cast<int32>(MaterialNames.size()))
+			{
+				if (UPrimitiveComponent* Prim = NewActor->GetComponentByClass<UPrimitiveComponent>())
+				{
+					std::shared_ptr<FMaterial> Mat = FMaterialManager::Get().FindByName(MaterialNames[MaterialIndex]);
+					if (Mat)
+					{
+						Prim->SetMaterial(Mat.get());
+					}
+				}
+			}
+
 			Core->SetSelectedActor(NewActor);
-			UE_LOG("Spawned %s: %s", SpawnTypes[SpawnTypeIndex], Name.c_str());
+			UE_LOG("Spawned %s: %s (Material: %s)", SpawnTypes[SpawnTypeIndex], Name.c_str(),
+				MaterialIndex < static_cast<int32>(MaterialNames.size()) ? MaterialNames[MaterialIndex].c_str() : "None");
 		}
 
 		ImGui::SameLine();
