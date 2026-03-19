@@ -7,6 +7,8 @@ namespace fs = std::filesystem;
 FString FPaths::Root;
 bool FPaths::bInitialized = false;
 
+std::string WStringToUtf8(const std::wstring& wstr);
+
 void FPaths::Initialize()
 {
 	if (bInitialized)
@@ -49,7 +51,11 @@ void FPaths::Initialize()
 
 void FPaths::SetRoot(const std::filesystem::path& InPath)
 {
-	Root = InPath.string();
+	std::wstring RootW = InPath.wstring(); // 안전
+
+	Root = WStringToUtf8(RootW); // UTF-8 string으로 변환
+
+	//Root = InPath.string();
 	for (auto& Ch : Root)
 	{
 		if (Ch == '\\')
@@ -124,5 +130,60 @@ FString FPaths::Combine(const FString& Base, const FString& Relative)
 
 std::wstring FPaths::ToWide(const FString& Path)
 {
-	return std::wstring(Path.begin(), Path.end());
+	if (Path.empty())
+		return {};
+
+	int sizeNeeded = MultiByteToWideChar(
+		CP_UTF8,                // UTF-8 → UTF-16
+		0,
+		Path.data(),
+		(int)Path.size(),
+		nullptr,
+		0
+	);
+
+	std::wstring result(sizeNeeded, 0);
+
+	MultiByteToWideChar(
+		CP_UTF8,
+		0,
+		Path.data(),
+		(int)Path.size(),
+		result.data(),
+		sizeNeeded
+	);
+
+	return result;
+}
+
+std::string WStringToUtf8(const std::wstring& wstr)
+{
+	if (wstr.empty())
+		return {};
+
+	int sizeNeeded = WideCharToMultiByte(
+		CP_UTF8,                // UTF-8 변환
+		0,
+		wstr.data(),
+		(int)wstr.size(),
+		nullptr,
+		0,
+		nullptr,
+		nullptr
+	);
+
+	std::string result(sizeNeeded, 0);
+
+	WideCharToMultiByte(
+		CP_UTF8,
+		0,
+		wstr.data(),
+		(int)wstr.size(),
+		result.data(),
+		sizeNeeded,
+		nullptr,
+		nullptr
+	);
+
+	return result;
 }
