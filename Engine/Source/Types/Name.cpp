@@ -30,7 +30,7 @@ void FName::SplitNameAndNumber(const FString& InString, FString& OutBase, int32&
 		{
 			if (InString[i] < '0' || InString[i] > '9') { AllDigits = false; break; }
 		}
-		if (AllDigits)
+		if (AllDigits && (InString.size() - Pos - 1 == 1 || InString[Pos + 1] != '0'))
 		{
 			OutBase = InString.substr(0, Pos);
 			OutNumber = std::stoi(InString.substr(Pos + 1)) + 1;
@@ -43,31 +43,43 @@ void FName::SplitNameAndNumber(const FString& InString, FString& OutBase, int32&
 
 FName::FName(const FString& InString)
 {
+	FString Base;
+	SplitNameAndNumber(InString, Base, Number);
+	DisplayIndex = GetTable().FindOrAdd(Base);
+	ComparisonIndex = GetTable().FindOrAdd(ToLower(Base));
 }
 
 FName::FName(const char* InString)
+	: FName(FString(InString))
 {
 }
 
 FName::FName(const FString& InString, int32 InNumber)
+	:DisplayIndex(GetTable().FindOrAdd(InString)),ComparisonIndex(GetTable().FindOrAdd(ToLower(InString)))
 {
 }
 
-FName::FName(const char* InString, int32 InNumber)
+FName::FName(const char* InString, int32 InNumber):FName(FString(InString),InNumber)
 {
 }
+FString FName::ToString() const
+{
+	const FString& Base = GetTable().Resolve(DisplayIndex);
+	if (Number == 0)
+		return Base;
+	return Base + "_" + std::to_string(Number - 1);
+}
+
+
 
 int32 FName::Compare(const FName& Other) const
 {
-	return int32();
+	if (ComparisonIndex != Other.ComparisonIndex)
+		return static_cast<int32>(ComparisonIndex) - static_cast<int32>(Other.ComparisonIndex);
+	return Number - Other.Number;
 }
 
 FString FName::GetPlainName() const
 {
-	return FString();
+	return GetTable().Resolve(DisplayIndex);
 }
-FString FName::ToString() const
-{
-	return FString();
-}
-
