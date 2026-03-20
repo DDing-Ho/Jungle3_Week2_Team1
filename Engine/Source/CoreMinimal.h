@@ -21,3 +21,4 @@ ENGINE_API extern FEngine* GEngine;
 #include "Object/Class.h"
 #include "Object/Object.h"
 #include "Debug/EngineLog.h"
+#include "Types/Name.h"
